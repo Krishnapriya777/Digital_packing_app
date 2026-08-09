@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pack a parcel</title>
+<link rel="stylesheet" href="/public/css/style.css" />
+</head>
+<body>
+
+<div class="shell">
+  <div class="pack-station">
+    <div class="header-block">
+      <p class="eyebrow">✨ pack a little something ✨</p>
+      <h1>Make someone's day a tiny bit sweeter.</h1>
+      <p>Tuck in photos, a doodle, a song, a video, or a little note. Seal it up and it'll land straight in their inbox.</p>
+    </div>
+
+    <div class="field-group">
+      <label for="senderName">From</label>
+      <input type="text" id="senderName" placeholder="Your name" />
+    </div>
+
+    <div class="two-col">
+      <div class="field-group">
+        <label for="recipientName">To</label>
+        <input type="text" id="recipientName" placeholder="Their name" />
+      </div>
+      <div class="field-group">
+        <label for="recipientEmail">Their email</label>
+        <input type="email" id="recipientEmail" placeholder="them@email.com" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="note">A little note (optional)</label>
+      <textarea id="note" placeholder="Something sweet they'll see first..."></textarea>
+    </div>
+
+    <hr style="border: none; border-top: 2px dashed #E0B8D9; margin: 32px 0;" />
+
+    <p class="eyebrow" style="margin-bottom: 14px;">🎀 what's going in?</p>
+    <div class="item-tabs">
+      <button type="button" class="tab-btn active" data-type="image">📸 Photo</button>
+      <button type="button" class="tab-btn" data-type="drawing">🎨 Doodle</button>
+      <button type="button" class="tab-btn" data-type="video">🎬 Video</button>
+      <button type="button" class="tab-btn" data-type="music">🎵 Song</button>
+      <button type="button" class="tab-btn" data-type="text">💌 Note</button>
+    </div>
+
+    <div class="item-input-panel">
+      <!-- image -->
+      <div class="item-panel" data-panel="image">
+        <label>Upload a photo</label>
+        <input type="file" id="imageFile" accept="image/*" />
+        <div class="field-group" style="margin-top:12px;">
+          <label>Caption (optional)</label>
+          <input type="text" id="imageCaption" placeholder="Say something about it" />
+        </div>
+        <button type="button" class="add-item-btn" data-add="image">Tuck it in ✨</button>
+      </div>
+
+      <!-- drawing -->
+      <div class="item-panel" data-panel="drawing" style="display:none;">
+        <label>Doodle something 🖍️</label>
+        <canvas class="draw-pad" id="drawPad" width="560" height="320"></canvas>
+        <div class="draw-tools">
+          <input type="color" id="drawColor" value="#6C4AB6" />
+          <button type="button" id="drawClear">Clear</button>
+          <span style="font-family:'Quicksand',sans-serif;font-size:12px;color:#9C8BB8;">draw with mouse or finger</span>
+        </div>
+        <button type="button" class="add-item-btn" data-add="drawing" style="margin-top:14px;">Tuck it in ✨</button>
+      </div>
+
+      <!-- video -->
+      <div class="item-panel" data-panel="video" style="display:none;">
+        <label>YouTube link</label>
+        <input type="url" id="videoUrl" placeholder="https://youtube.com/watch?v=..." />
+        <button type="button" class="add-item-btn" data-add="video" style="margin-top:14px;">Tuck it in ✨</button>
+      </div>
+
+      <!-- music -->
+      <div class="item-panel" data-panel="music" style="display:none;">
+        <label>Spotify link</label>
+        <input type="url" id="musicUrl" placeholder="https://open.spotify.com/track/..." />
+        <button type="button" class="add-item-btn" data-add="music" style="margin-top:14px;">Tuck it in ✨</button>
+      </div>
+
+      <!-- text -->
+      <div class="item-panel" data-panel="text" style="display:none;">
+        <label>Write a little note</label>
+        <textarea id="textNote" placeholder="Whatever you want to say..." style="width:100%;min-height:100px;background:var(--paper);border:2px solid #E7DEFA;border-radius:10px;padding:12px;color:var(--plum);font-family:'Quicksand',sans-serif;"></textarea>
+        <button type="button" class="add-item-btn" data-add="text" style="margin-top:14px;">Tuck it in ✨</button>
+      </div>
+    </div>
+
+    <ul class="packed-list" id="packedList"></ul>
+
+    <div id="statusMsg"></div>
+  </div>
+
+  <div class="parcel-preview">
+    <div class="stamp">made<br/>with<br/>love</div>
+    <div>
+      <div class="contents-count" id="itemCount">0</div>
+      <p>goodies tucked in</p>
+      <div class="address" style="margin-top:36px;">
+        <span class="label">To</span>
+        <span id="previewTo">—</span>
+        <span class="label" style="margin-top:14px;">From</span>
+        <span id="previewFrom">—</span>
+      </div>
+    </div>
+    <div>
+      <button type="button" class="send-btn" id="sendBtn">Send with love 💌</button>
+      <div class="status-msg" id="sendStatus"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/public/js/create.js"></script>
+</body>
+</html>

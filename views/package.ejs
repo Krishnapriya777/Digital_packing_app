@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>A little something for <%= pkg.recipient_name %></title>
+<link rel="stylesheet" href="/public/css/style.css" />
+</head>
+<body>
+
+<div class="reveal-shell">
+  <div class="parcel-box">
+    <div class="flap">
+      <div class="postmark">yay!<br/><%= new Date(pkg.created_at).toLocaleDateString() %></div>
+      <p class="eyebrow">🎁 something arrived for you 🎁</p>
+      <h1>For <%= pkg.recipient_name %>, from <%= pkg.sender_name %></h1>
+      <% if (pkg.note) { %>
+        <p class="note">"<%= pkg.note %>"</p>
+      <% } %>
+    </div>
+
+    <div class="gift-grid">
+      <% items.forEach((item, i) => { %>
+        <div class="gift-card" style="--i: <%= i %>;">
+          <% if (item.type === 'image' || item.type === 'drawing') { %>
+            <span class="tag-label"><span class="sticker-icon"><%= item.type === 'drawing' ? '🎨' : '📸' %></span><%= item.type === 'drawing' ? 'a doodle' : 'a photo' %></span>
+            <img src="<%= item.content %>" alt="<%= item.caption || item.type %>" />
+            <% if (item.caption) { %><p class="caption"><%= item.caption %></p><% } %>
+          <% } else if (item.type === 'video') { %>
+            <span class="tag-label"><span class="sticker-icon">🎬</span>a video</span>
+            <% if (item.embed.kind === 'youtube') { %>
+              <iframe src="<%= item.embed.embedUrl %>" height="180" allowfullscreen></iframe>
+            <% } else { %>
+              <a href="<%= item.embed.embedUrl %>" target="_blank" rel="noopener">Watch video →</a>
+            <% } %>
+          <% } else if (item.type === 'music') { %>
+            <span class="tag-label"><span class="sticker-icon">🎵</span>a song</span>
+            <% if (item.embed.kind === 'spotify') { %>
+              <iframe src="<%= item.embed.embedUrl %>" height="152" allow="encrypted-media"></iframe>
+            <% } else { %>
+              <a href="<%= item.embed.embedUrl %>" target="_blank" rel="noopener">Listen →</a>
+            <% } %>
+          <% } else if (item.type === 'text') { %>
+            <span class="tag-label"><span class="sticker-icon">💌</span>a note</span>
+            <p class="text-note"><%= item.content %></p>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
