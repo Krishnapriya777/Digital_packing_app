@@ -48,6 +48,7 @@ if (process.env.SMTP_HOST) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    family: 4, // Force IPv4 to prevent ENETUNREACH on cloud platforms without IPv6 support
     connectionTimeout: 10000, // 10s connection timeout
   });
 
