@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { nanoid } = require('nanoid');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 const db = require('./db');
 
 const app = express();
@@ -18,7 +18,15 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-// --- file uploads (images + drawings) ---
+// --- SendGrid Mailer Setup ---
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅ SendGrid Web API configured successfully');
+} else {
+  console.log('⚠️ SENDGRID_API_KEY is missing from environment variables');
+}
+
+// --- File Uploads ---
 const uploadDir = path.join(__dirname, 'public/uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -31,38 +39,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// --- mailer ---
-let transporter = null;
-if (process.env.SMTP_HOST) {
-  const smtpPort = Number(process.env.SMTP_PORT || 465);
-  // Port 465 requires secure: true; Port 587/25 require secure: false
-  const isSecure = process.env.SMTP_SECURE !== undefined 
-    ? process.env.SMTP_SECURE === 'true' 
-    : smtpPort === 465;
-
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: smtpPort,
-    secure: isSecure,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    family: 4, // Force IPv4 to prevent ENETUNREACH on cloud platforms without IPv6 support
-    connectionTimeout: 10000, // 10s connection timeout
-  });
-
-  // Verify SMTP server connection on startup
-  transporter.verify((error) => {
-    if (error) {
-      console.error('❌ SMTP Connection Error:', error.message);
-    } else {
-      console.log(`✅ SMTP server connected successfully on port ${smtpPort}`);
-    }
-  });
-}
-
-// --- helpers ---
+// --- Helpers ---
 function embedForUrl(type, url) {
   try {
     if (type === 'video') {
@@ -79,7 +56,7 @@ function embedForUrl(type, url) {
   return { kind: 'link', embedUrl: url };
 }
 
-// --- routes ---
+// --- Routes ---
 app.get('/', (req, res) => res.redirect('/create'));
 
 app.get('/create', (req, res) => {
@@ -125,11 +102,11 @@ app.post('/api/packages', async (req, res) => {
   let emailStatus = 'not_configured';
   let emailError = null;
 
-  if (transporter) {
+  if (process.env.SENDGRID_API_KEY) {
     try {
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      await sgMail.send({
         to: recipientEmail,
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
         subject: `${senderName} sent you a little box of goodies 🎁`,
         html: `
           <div style="font-family: Georgia, serif; max-width: 480px; margin: auto; padding: 32px; background: #F3EAD8; border: 1px solid #C9AD82;">
@@ -145,9 +122,9 @@ app.post('/api/packages', async (req, res) => {
       });
       emailStatus = 'sent';
     } catch (err) {
-      console.error('Email send failed:', err);
+      console.error('SendGrid email failure:', err.response ? err.response.body : err.message);
       emailStatus = 'failed';
-      emailError = err.message;
+      emailError = err.response ? JSON.stringify(err.response.body) : err.message;
     }
   }
 
@@ -172,7 +149,7 @@ app.get('/p/:id', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`A Little Box of Goodies running at ${BASE_URL}`);
-  if (!process.env.SMTP_HOST) {
-    console.log('⚠️ SMTP_HOST is not set — environment variables might not be loaded in production.');
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('⚠️ SENDGRID_API_KEY is not set — emails will not send.');
   }
 });
