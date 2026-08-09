@@ -34,14 +34,30 @@ const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 // --- mailer ---
 let transporter = null;
 if (process.env.SMTP_HOST) {
+  const smtpPort = Number(process.env.SMTP_PORT || 465);
+  // Port 465 requires secure: true; Port 587/25 require secure: false
+  const isSecure = process.env.SMTP_SECURE !== undefined 
+    ? process.env.SMTP_SECURE === 'true' 
+    : smtpPort === 465;
+
   transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === 'true',
+    port: smtpPort,
+    secure: isSecure,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10000, // 10s connection timeout
+  });
+
+  // Verify SMTP server connection on startup
+  transporter.verify((error) => {
+    if (error) {
+      console.error('❌ SMTP Connection Error:', error.message);
+    } else {
+      console.log(`✅ SMTP server connected successfully on port ${smtpPort}`);
+    }
   });
 }
 
@@ -106,6 +122,8 @@ app.post('/api/packages', async (req, res) => {
   const link = `${BASE_URL}/p/${id}`;
 
   let emailStatus = 'not_configured';
+  let emailError = null;
+
   if (transporter) {
     try {
       await transporter.sendMail({
@@ -126,12 +144,13 @@ app.post('/api/packages', async (req, res) => {
       });
       emailStatus = 'sent';
     } catch (err) {
-      console.error('Email send failed:', err.message);
+      console.error('Email send failed:', err);
       emailStatus = 'failed';
+      emailError = err.message;
     }
   }
 
-  res.json({ id, link, emailStatus });
+  res.json({ id, link, emailStatus, emailError });
 });
 
 app.get('/p/:id', (req, res) => {
@@ -151,8 +170,8 @@ app.get('/p/:id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`A Little Box of Goodies (local) running at ${BASE_URL}`);
-  if (!transporter) {
-    console.log('SMTP not configured — packages will be created but emails will not send. See .env.example.');
+  console.log(`A Little Box of Goodies running at ${BASE_URL}`);
+  if (!process.env.SMTP_HOST) {
+    console.log('⚠️ SMTP_HOST is not set — environment variables might not be loaded in production.');
   }
 });
