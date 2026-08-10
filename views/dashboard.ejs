@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - A Little Box of Goodies</title>
+  <link rel="stylesheet" href="/public/css/style.css">
+  <style>
+    .dash-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .dash-tabs { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid var(--ink-black, #1a1a1a); padding-bottom: 12px; }
+    .dash-tab { text-decoration: none; padding: 8px 18px; border-radius: 999px; font-weight: 700; color: #1a1a1a; background: #E7DEFA; }
+    .dash-tab.active { background: #1a1a1a; color: #fff; }
+    .pkg-card { background: var(--paper, #fff); border: 2.5px solid var(--ink-black, #1a1a1a); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 4px 4px 0px var(--ink-black, #1a1a1a); display: flex; justify-content: space-between; align-items: center; }
+    .pkg-info h3 { margin: 0 0 4px 0; font-size: 20px; }
+    .pkg-info p { margin: 0; font-size: 14px; color: #6B5B8A; font-weight: 600; }
+    .empty-state { text-align: center; padding: 40px; background: #fff; border: 2px dashed #1a1a1a; border-radius: 16px; }
+    .actions { display: flex; gap: 8px; }
+    .btn-sm { text-decoration: none; padding: 6px 14px; border-radius: 8px; border: 2px solid #1a1a1a; font-weight: 700; font-size: 13px; color: #1a1a1a; background: #fff; }
+    .btn-danger { background: #FFE0E0; color: #900; }
+  </style>
+</head>
+<body>
+
+<div class="dash-container">
+  <div class="dash-header">
+    <div>
+      <h1>Hi, <%= user.name %> 👋</h1>
+      <p style="color: #6B5B8A; font-weight: 600;"><%= user.username %></p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="/create" class="send-btn" style="text-decoration: none;">Pack a Parcel 🎁</a>
+      <a href="/logout" class="btn-sm" style="display: flex; align-items: center;">Logout</a>
+    </div>
+  </div>
+
+  <!-- Dashboard Navigation Tabs -->
+  <div class="dash-tabs">
+    <a href="/dashboard?tab=inbox" class="dash-tab <%= tab === 'inbox' ? 'active' : '' %>">Inbox (<%= inbox.length %>)</a>
+    <a href="/dashboard?tab=sent" class="dash-tab <%= tab === 'sent' ? 'active' : '' %>">Sent (<%= sent.length %>)</a>
+    <a href="/dashboard?tab=drafts" class="dash-tab <%= tab === 'drafts' ? 'active' : '' %>">Drafts (<%= drafts.length %>)</a>
+  </div>
+
+  <!-- Content List -->
+  <% const currentList = tab === 'inbox' ? inbox : (tab === 'sent' ? sent : drafts); %>
+
+  <% if (currentList.length === 0) { %>
+    <div class="empty-state">
+      <p style="font-size: 24px; margin-bottom: 8px;">📦</p>
+      <p style="font-weight: 700;">No parcels here yet!</p>
+    </div>
+  <% } else { %>
+    <% currentList.forEach(pkg => { %>
+      <div class="pkg-card">
+        <div class="pkg-info">
+          <% if (tab === 'inbox') { %>
+            <h3>From: <%= pkg.sender_name %></h3>
+          <% } else { %>
+            <h3>To: <%= pkg.recipient_name || pkg.recipient_username %></h3>
+          <% } %>
+          <p><%= new Date(pkg.created_at).toLocaleDateString() %> — <%= pkg.note ? `"${pkg.note}"` : 'No note' %></p>
+        </div>
+
+        <div class="actions">
+          <% if (tab === 'drafts') { %>
+            <a href="/create?draftId=<%= pkg.id %>" class="btn-sm" style="background: var(--butter, #FFF3B0);">Edit Draft ✏️</a>
+          <% } else { %>
+            <a href="/package/<%= pkg.id %>" class="btn-sm">Open Parcel 🎁</a>
+          <% } %>
+
+          <form action="/api/packages/<%= pkg.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Delete this parcel?');">
+            <button type="submit" class="btn-sm btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+</body>
+</html>

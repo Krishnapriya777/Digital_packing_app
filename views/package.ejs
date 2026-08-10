@@ -3,17 +3,39 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>A little something for <%= pkg.recipient_name %></title>
+<title>A little something for <%= pkg.recipient_name || pkg.recipient_username %></title>
 <link rel="stylesheet" href="/public/css/style.css" />
+<style>
+  .top-bar {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+  }
+  .top-bar a {
+    background: var(--paper);
+    border: 2px solid var(--ink-black);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--ink-black);
+    box-shadow: 2px 2px 0px var(--ink-black);
+  }
+</style>
 </head>
 <body>
+
+<div class="top-bar">
+  <a href="/dashboard">← Back to Dashboard</a>
+</div>
 
 <div class="reveal-shell">
   <div class="parcel-box">
     <div class="flap">
       <div class="postmark">yay!<br/><%= new Date(pkg.created_at).toLocaleDateString() %></div>
       <p class="eyebrow">🎁 something arrived for you 🎁</p>
-      <h1>For <%= pkg.recipient_name %>, from <%= pkg.sender_name %></h1>
+      <h1>For <%= pkg.recipient_name || pkg.recipient_username %>, from <%= pkg.sender_name %></h1>
       <% if (pkg.note) { %>
         <p class="note">"<%= pkg.note %>"</p>
       <% } %>
@@ -28,17 +50,17 @@
             <% if (item.caption) { %><p class="caption"><%= item.caption %></p><% } %>
           <% } else if (item.type === 'video') { %>
             <span class="tag-label"><span class="sticker-icon">🎬</span>a video</span>
-            <% if (item.embed.kind === 'youtube') { %>
+            <% if (item.embed && item.embed.kind === 'youtube') { %>
               <iframe src="<%= item.embed.embedUrl %>" height="180" allowfullscreen></iframe>
             <% } else { %>
-              <a href="<%= item.embed.embedUrl %>" target="_blank" rel="noopener">Watch video →</a>
+              <a href="<%= item.content %>" target="_blank" rel="noopener">Watch video →</a>
             <% } %>
           <% } else if (item.type === 'music') { %>
             <span class="tag-label"><span class="sticker-icon">🎵</span>a song</span>
-            <% if (item.embed.kind === 'spotify') { %>
+            <% if (item.embed && item.embed.kind === 'spotify') { %>
               <iframe src="<%= item.embed.embedUrl %>" height="152" allow="encrypted-media"></iframe>
             <% } else { %>
-              <a href="<%= item.embed.embedUrl %>" target="_blank" rel="noopener">Listen →</a>
+              <a href="<%= item.content %>" target="_blank" rel="noopener">Listen →</a>
             <% } %>
           <% } else if (item.type === 'text') { %>
             <span class="tag-label"><span class="sticker-icon">💌</span>a note</span>

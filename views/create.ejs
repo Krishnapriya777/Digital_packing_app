@@ -3,10 +3,45 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pack a parcel</title>
+<title>Pack a parcel - A Little Box of Goodies</title>
 <link rel="stylesheet" href="/public/css/style.css" />
+<style>
+  .top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--paper);
+    border-bottom: 2px solid var(--ink-black);
+  }
+  .top-nav a {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--ink-black);
+  }
+  .draft-btn {
+    background: var(--butter);
+    border: 2px solid var(--ink-black);
+    color: var(--ink-black);
+    width: 100%;
+    padding: 12px;
+    border-radius: 999px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 10px;
+    box-shadow: 2px 2px 0px var(--ink-black);
+    cursor: pointer;
+  }
+</style>
 </head>
 <body>
+
+<div class="top-nav">
+  <a href="/dashboard">← Back to Dashboard</a>
+  <span>Logged in as: <strong><%= currentUser ? currentUser.username : '' %></strong></span>
+</div>
 
 <div class="shell">
   <div class="pack-station">
@@ -16,28 +51,26 @@
       <p>Tuck in photos, a doodle, a song, a video, or a little note. Seal it up and it'll land straight in their inbox.</p>
     </div>
 
-    <div class="field-group">
-      <label for="senderName">From</label>
-      <input type="text" id="senderName" placeholder="Your name" />
-    </div>
+    <!-- Hidden input to store draft id if editing -->
+    <input type="hidden" id="packageId" value="<%= draft ? draft.id : '' %>" />
 
     <div class="two-col">
       <div class="field-group">
-        <label for="recipientName">To</label>
-        <input type="text" id="recipientName" placeholder="Their name" />
+        <label for="recipientName">To (Name)</label>
+        <input type="text" id="recipientName" placeholder="Their name" value="<%= draft ? draft.recipient_name : '' %>" />
       </div>
       <div class="field-group">
-        <label for="recipientEmail">Their email</label>
-        <input type="email" id="recipientEmail" placeholder="them@email.com" />
+        <label for="recipientUsername">Recipient Username</label>
+        <input type="email" id="recipientUsername" placeholder="them@littlegoodies.com" value="<%= draft ? draft.recipient_username : '' %>" required />
       </div>
     </div>
 
     <div class="field-group">
       <label for="note">A little note (optional)</label>
-      <textarea id="note" placeholder="Something sweet they'll see first..."></textarea>
+      <textarea id="note" placeholder="Something sweet they'll see first..."><%= draft ? draft.note : '' %></textarea>
     </div>
 
-    <hr style="border: none; border-top: 2px dashed #E0B8D9; margin: 32px 0;" />
+    <hr style="border: none; border-top: 2px dashed var(--ink-black); margin: 32px 0;" />
 
     <p class="eyebrow" style="margin-bottom: 14px;">🎀 what's going in?</p>
     <div class="item-tabs">
@@ -65,9 +98,9 @@
         <label>Doodle something 🖍️</label>
         <canvas class="draw-pad" id="drawPad" width="560" height="320"></canvas>
         <div class="draw-tools">
-          <input type="color" id="drawColor" value="#6C4AB6" />
+          <input type="color" id="drawColor" value="#1A1A1A" />
           <button type="button" id="drawClear">Clear</button>
-          <span style="font-family:'Quicksand',sans-serif;font-size:12px;color:#9C8BB8;">draw with mouse or finger</span>
+          <span style="font-family:'Quicksand',sans-serif;font-size:12px;color:var(--plum);">draw with mouse or finger</span>
         </div>
         <button type="button" class="add-item-btn" data-add="drawing" style="margin-top:14px;">Tuck it in ✨</button>
       </div>
@@ -89,7 +122,7 @@
       <!-- text -->
       <div class="item-panel" data-panel="text" style="display:none;">
         <label>Write a little note</label>
-        <textarea id="textNote" placeholder="Whatever you want to say..." style="width:100%;min-height:100px;background:var(--paper);border:2px solid #E7DEFA;border-radius:10px;padding:12px;color:var(--plum);font-family:'Quicksand',sans-serif;"></textarea>
+        <textarea id="textNote" placeholder="Whatever you want to say..." style="width:100%;min-height:100px;background:var(--paper);border:2px solid var(--ink-black);border-radius:10px;padding:12px;color:var(--ink-black);font-family:'Quicksand',sans-serif;"></textarea>
         <button type="button" class="add-item-btn" data-add="text" style="margin-top:14px;">Tuck it in ✨</button>
       </div>
     </div>
@@ -106,18 +139,20 @@
       <p>goodies tucked in</p>
       <div class="address" style="margin-top:36px;">
         <span class="label">To</span>
-        <span id="previewTo">—</span>
+        <span id="previewTo"><%= draft && draft.recipient_username ? draft.recipient_username : '—' %></span>
         <span class="label" style="margin-top:14px;">From</span>
-        <span id="previewFrom">—</span>
+        <span id="previewFrom"><%= currentUser ? currentUser.name : '—' %></span>
       </div>
     </div>
     <div>
       <button type="button" class="send-btn" id="sendBtn">Send with love 💌</button>
+      <button type="button" class="draft-btn" id="saveDraftBtn">Save as Draft 📝</button>
       <div class="status-msg" id="sendStatus"></div>
     </div>
   </div>
 </div>
-
+<!-- Store draft items safely in a data attribute -->
+<div id="draft-data" data-items="<%= JSON.stringify(draftItems || []) %>" style="display: none;"></div>
 <script src="/public/js/create.js"></script>
 </body>
 </html>

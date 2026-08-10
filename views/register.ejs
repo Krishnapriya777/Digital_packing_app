@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - A Little Box of Goodies</title>
+  <link rel="stylesheet" href="/public/css/style.css">
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .auth-card {
+      background: var(--paper, #fff);
+      border: 2.5px solid var(--ink-black, #1a1a1a);
+      border-radius: 28px;
+      padding: 36px 32px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 6px 6px 0px var(--ink-black, #1a1a1a);
+      text-align: center;
+    }
+    .auth-card h1 {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+    .auth-card p {
+      font-size: 15px;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    .auth-card form {
+      text-align: left;
+    }
+    .auth-card button {
+      width: 100%;
+      margin-top: 12px;
+    }
+    .auth-footer {
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .auth-footer a {
+      color: #6C4AB6;
+      text-decoration: underline;
+    }
+    .error-banner {
+      background: #FFE0E0;
+      border: 2px solid #E8639A;
+      color: #900;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div style="font-size: 32px; margin-bottom: 8px;">✨</div>
+      <h1>Create Account</h1>
+      <p>Start sending cute care packages!</p>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-banner"><%= error %></div>
+      <% } %>
+
+      <form action="/register" method="POST">
+        <div class="field-group">
+          <label for="name">Your Name</label>
+          <input type="text" id="name" name="name" placeholder="e.g. Alex" required />
+        </div>
+
+        <div class="field-group">
+          <label for="username">Username (@littlegoodies.com)</label>
+          <input type="email" id="username" name="username" placeholder="alex@littlegoodies.com" required />
+        </div>
+
+        <div class="field-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" class="send-btn">Create Account ✨</button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="/login">Log in</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

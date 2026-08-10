@@ -1,8 +1,8 @@
 {
   "name": "care-package",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A Little Box of Goodies - Digital Packing Station",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,12 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^8.1.0",
     "dotenv": "^17.4.2",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
+    "express-session": "^1.18.0",
     "multer": "^2.2.0",
-    "nanoid": "^3.3.18",
-    "nodemailer": "^9.0.5"
+    "nanoid": "^3.3.18"
   }
 }

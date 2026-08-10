@@ -1,4 +1,4 @@
-// Simple JSON-file store. No native compilation needed (unlike better-sqlite3),
+// Simple JSON-file store. No native compilation needed,
 // so this runs the same on Windows, Mac, Linux, and Render without any build step.
 const fs = require('fs');
 const path = require('path');
@@ -7,13 +7,18 @@ const DATA_FILE = path.join(__dirname, 'data.json');
 
 function load() {
   if (!fs.existsSync(DATA_FILE)) {
-    return { packages: {}, items: [] };
+    return { users: [], packages: {}, items: [] };
   }
   try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    return {
+      users: parsed.users || [],
+      packages: parsed.packages || {},
+      items: parsed.items || [],
+    };
   } catch (e) {
     console.error('data.json was unreadable, starting fresh:', e.message);
-    return { packages: {}, items: [] };
+    return { users: [], packages: {}, items: [] };
   }
 }
 
@@ -21,19 +26,92 @@ function save(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
-function createPackage({ id, sender_name, recipient_name, recipient_email, note }) {
+// --- User Operations ---
+
+function createUser({ id, name, username, password }) {
   const data = load();
-  data.packages[id] = {
+  const user = {
     id,
-    sender_name,
-    recipient_name,
-    recipient_email,
-    note: note || '',
+    name,
+    username: username.toLowerCase(),
+    password,
     created_at: new Date().toISOString(),
   };
+  data.users.push(user);
+  save(data);
+  return user;
+}
+
+function getUserByUsername(username) {
+  const data = load();
+  const cleanUsername = (username || '').toLowerCase();
+  return data.users.find((u) => u.username === cleanUsername) || null;
+}
+
+// --- Package Operations ---
+
+function upsertPackage({ id, sender_name, sender_username, recipient_name, recipient_username, note, is_draft, created_at }) {
+  const data = load();
+  const existingPkg = data.packages[id] || {};
+
+  data.packages[id] = {
+    ...existingPkg,
+    id,
+    sender_name,
+    sender_username: (sender_username || '').toLowerCase(),
+    recipient_name: recipient_name || '',
+    recipient_username: (recipient_username || '').toLowerCase(),
+    note: note || '',
+    is_draft: is_draft ? 1 : 0,
+    created_at: created_at || existingPkg.created_at || new Date().toISOString(),
+  };
+
   save(data);
   return data.packages[id];
 }
+
+function getPackage(id) {
+  const data = load();
+  return data.packages[id] || null;
+}
+
+function getInboxPackages(username) {
+  const data = load();
+  const cleanUsername = (username || '').toLowerCase();
+  return Object.values(data.packages)
+    .filter((p) => p.recipient_username === cleanUsername && !p.is_draft)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+function getSentPackages(username) {
+  const data = load();
+  const cleanUsername = (username || '').toLowerCase();
+  return Object.values(data.packages)
+    .filter((p) => p.sender_username === cleanUsername && !p.is_draft)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+function getDraftPackages(username) {
+  const data = load();
+  const cleanUsername = (username || '').toLowerCase();
+  return Object.values(data.packages)
+    .filter((p) => p.sender_username === cleanUsername && p.is_draft)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+function deletePackage(id) {
+  const data = load();
+  if (data.packages[id]) {
+    delete data.packages[id];
+    // Clean up attached items as well
+    data.items = data.items.filter((i) => i.package_id !== id);
+    save(data);
+    return true;
+  }
+  return false;
+}
+
+// --- Item Operations ---
 
 function addItem({ package_id, type, content, caption, sort_order }) {
   const data = load();
@@ -50,11 +128,6 @@ function addItem({ package_id, type, content, caption, sort_order }) {
   return item;
 }
 
-function getPackage(id) {
-  const data = load();
-  return data.packages[id];
-}
-
 function getItems(package_id) {
   const data = load();
   return data.items
@@ -62,4 +135,22 @@ function getItems(package_id) {
     .sort((a, b) => a.sort_order - b.sort_order);
 }
 
-module.exports = { createPackage, addItem, getPackage, getItems };
+function deleteItemsByPackageId(package_id) {
+  const data = load();
+  data.items = data.items.filter((i) => i.package_id !== package_id);
+  save(data);
+}
+
+module.exports = {
+  createUser,
+  getUserByUsername,
+  upsertPackage,
+  getPackage,
+  getInboxPackages,
+  getSentPackages,
+  getDraftPackages,
+  deletePackage,
+  addItem,
+  getItems,
+  deleteItemsByPackageId,
+};
