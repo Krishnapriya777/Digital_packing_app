@@ -1,0 +1,33 @@
+{
+  "users": [
+    {
+      "id": "gHwSPtAMFS",
+      "name": "Muthu",
+      "username": "muthu@littlegoodies.com",
+      "password": "muthu123",
+      "created_at": "2026-08-10T14:43:11.005Z"
+    }
+  ],
+  "packages": {
+    "Ai9NnY3M2y": {
+      "id": "Ai9NnY3M2y",
+      "sender_name": "Muthu",
+      "sender_username": "muthu@littlegoodies.com",
+      "recipient_name": "uth",
+      "recipient_username": "muthu",
+      "note": "",
+      "is_draft": 0,
+      "created_at": "2026-08-10T14:44:30.911Z"
+    }
+  },
+  "items": [
+    {
+      "id": 1,
+      "package_id": "Ai9NnY3M2y",
+      "type": "text",
+      "content": "nwm",
+      "caption": "",
+      "sort_order": 0
+    }
+  ]
+}
