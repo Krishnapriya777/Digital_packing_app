@@ -25,11 +25,9 @@
 </style>
 </head>
 <body>
-
 <div class="top-bar">
   <a href="/dashboard">← Back to Dashboard</a>
 </div>
-
 <div class="reveal-shell">
   <div class="parcel-box">
     <div class="flap">
@@ -40,7 +38,6 @@
         <p class="note">"<%= pkg.note %>"</p>
       <% } %>
     </div>
-
     <div class="gift-grid">
       <% items.forEach((item, i) => { %>
         <div class="gift-card" style="--i: <%= i %>;">
@@ -65,12 +62,22 @@
           <% } else if (item.type === 'text') { %>
             <span class="tag-label"><span class="sticker-icon">💌</span>a note</span>
             <p class="text-note"><%= item.content %></p>
+          <% } else if (item.type === 'jewellery') { %>
+            <span class="tag-label"><span class="sticker-icon">💎</span>a little jewellery</span>
+            <%- item.content %>
+            <% if (item.caption) { %><p class="caption"><%= item.caption %></p><% } %>
+          <% } else if (item.type === 'bouquet') { %>
+            <span class="tag-label"><span class="sticker-icon">💐</span>a bouquet</span>
+            <%- item.content %>
+            <% if (item.caption) { %><p class="caption"><%= item.caption %></p><% } %>
+          <% } else if (item.type === 'coupon') { %>
+            <span class="tag-label"><span class="sticker-icon">🎟️</span>a coupon</span>
+            <%- item.content %>
           <% } %>
         </div>
       <% }) %>
     </div>
   </div>
 </div>
-
 </body>
 </html>
