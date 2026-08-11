@@ -79,6 +79,9 @@
       <button type="button" class="tab-btn" data-type="video">🎬 Video</button>
       <button type="button" class="tab-btn" data-type="music">🎵 Song</button>
       <button type="button" class="tab-btn" data-type="text">💌 Note</button>
+      <button type="button" class="tab-btn" data-type="jewellery">💎 Jewellery</button>
+      <button type="button" class="tab-btn" data-type="bouquet">💐 Bouquet</button>
+      <button type="button" class="tab-btn" data-type="coupon">🎟️ Coupon</button>
     </div>
 
     <div class="item-input-panel">
@@ -98,7 +101,11 @@
         <label>Doodle something 🖍️</label>
         <canvas class="draw-pad" id="drawPad" width="560" height="320"></canvas>
         <div class="draw-tools">
-          <input type="color" id="drawColor" value="#1A1A1A" />
+          <input type="color" id="drawColor" value="#1A1A1A" title="Pen color" />
+          <button type="button" id="drawPenBtn" class="tool-active">✏️ Pen</button>
+          <button type="button" id="drawEraserBtn">🧽 Eraser</button>
+          <input type="color" id="fillColor" value="#FFFFFF" title="Fill color" />
+          <button type="button" id="fillCanvasBtn">🪣 Fill</button>
           <button type="button" id="drawClear">Clear</button>
           <span style="font-family:'Quicksand',sans-serif;font-size:12px;color:var(--plum);">draw with mouse or finger</span>
         </div>
@@ -122,8 +129,148 @@
       <!-- text -->
       <div class="item-panel" data-panel="text" style="display:none;">
         <label>Write a little note</label>
+        <div class="emoji-bar">
+          <button type="button" id="emojiToggleBtn" aria-label="Add emoji">😊</button>
+          <div id="emojiPicker" class="emoji-picker" hidden>
+            <div class="emoji-picker-head">
+              <span>pick one</span>
+              <button type="button" id="emojiCloseBtn" aria-label="Close">✕</button>
+            </div>
+            <div class="emoji-grid" id="emojiGrid"></div>
+          </div>
+        </div>
         <textarea id="textNote" placeholder="Whatever you want to say..." style="width:100%;min-height:100px;background:var(--paper);border:2px solid var(--ink-black);border-radius:10px;padding:12px;color:var(--ink-black);font-family:'Quicksand',sans-serif;"></textarea>
         <button type="button" class="add-item-btn" data-add="text" style="margin-top:14px;">Tuck it in ✨</button>
+      </div>
+
+      <!-- jewellery -->
+      <div class="item-panel" data-panel="jewellery" style="display:none;">
+        <label>Design a little piece of jewellery 💎</label>
+
+        <div class="two-col">
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">For</label>
+            <select id="jwCategory" class="cute-select">
+              <option value="women">Women's</option>
+              <option value="men">Men's</option>
+            </select>
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Piece</label>
+            <select id="jwType" class="cute-select"></select>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Metal</label>
+            <select id="jwMetal" class="cute-select">
+              <option value="#D4AF37">Gold</option>
+              <option value="#C0C0C0">Silver</option>
+              <option value="#E8B4B8">Rose Gold</option>
+            </select>
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Style</label>
+            <select id="jwStyle" class="cute-select">
+              <option value="minimal">Minimal</option>
+              <option value="beaded">Beaded</option>
+              <option value="chain">Chain</option>
+              <option value="charm">Charm</option>
+              <option value="engraved">Engraved</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Charm / Symbol</label>
+            <select id="jwCharm" class="cute-select">
+              <option value="">None</option>
+              <option value="❤️">Heart</option>
+              <option value="⭐">Star</option>
+              <option value="🌙">Moon</option>
+              <option value="🌸">Flower</option>
+              <option value="♾️">Infinity</option>
+              <option value="🦋">Butterfly</option>
+            </select>
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Initials (optional)</label>
+            <input type="text" id="jwInitials" maxlength="3" placeholder="e.g. A.K" />
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom:12px;">
+          <label style="font-size:11px;">Short Engraving (optional)</label>
+          <input type="text" id="jwEngraving" maxlength="24" placeholder="e.g. always & forever" />
+        </div>
+
+        <div class="preview-box" id="jwPreview"></div>
+
+        <button type="button" class="add-item-btn" data-add="jewellery" style="margin-top:14px;">Tuck it in ✨</button>
+      </div>
+
+      <!-- bouquet -->
+      <div class="item-panel" data-panel="bouquet" style="display:none;">
+        <label>Build a little bouquet 💐</label>
+
+        <div class="flower-picker" id="flowerPicker"></div>
+
+        <div class="two-col" style="margin-top:14px;">
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Wrapping</label>
+            <select id="bqWrap" class="cute-select">
+              <option value="#FFDFEC">Blush Paper</option>
+              <option value="#FFF3B0">Kraft & Butter</option>
+              <option value="#E4DEFF">Lavender</option>
+              <option value="#B3E5FC">Sky Blue</option>
+              <option value="#FFFBF4">Classic Cream</option>
+            </select>
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Ribbon</label>
+            <select id="bqRibbon" class="cute-select">
+              <option value="#E8639A">Rose</option>
+              <option value="#6C4AB6">Grape</option>
+              <option value="#B8F2D4">Mint</option>
+              <option value="#1A1A1A">Black</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom:12px;">
+          <label style="font-size:11px;">Card message (optional)</label>
+          <input type="text" id="bqMessage" maxlength="60" placeholder="for you, always..." />
+        </div>
+
+        <div class="preview-box" id="bqPreview"></div>
+
+        <button type="button" class="add-item-btn" data-add="bouquet" style="margin-top:14px;">Tuck it in ✨</button>
+      </div>
+
+      <!-- coupon -->
+      <div class="item-panel" data-panel="coupon" style="display:none;">
+        <label>Make a little coupon 🎟️</label>
+
+        <div class="coupon-templates" id="couponTemplates"></div>
+
+        <div class="field-group" style="margin-bottom:12px;">
+          <label style="font-size:11px;">Title</label>
+          <input type="text" id="cpTitle" maxlength="40" placeholder="Movie Night" />
+        </div>
+        <div class="field-group" style="margin-bottom:12px;">
+          <label style="font-size:11px;">Description</label>
+          <textarea id="cpDesc" maxlength="120" placeholder="Redeemable for one cozy movie night, my treat."></textarea>
+        </div>
+        <div class="field-group" style="margin-bottom:12px;">
+          <label style="font-size:11px;">Expiry (optional)</label>
+          <input type="text" id="cpExpiry" placeholder="e.g. 31 Dec 2026" />
+        </div>
+
+        <div class="preview-box" id="cpPreview"></div>
+
+        <button type="button" class="add-item-btn" data-add="coupon" style="margin-top:14px;">Tuck it in ✨</button>
       </div>
     </div>
 
